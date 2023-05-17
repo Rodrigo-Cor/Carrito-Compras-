@@ -106,6 +106,8 @@
 
 <script>
 import axios from "axios";
+import Swal from "sweetalert2";
+
 export default {
   name: "Form",
   data() {
@@ -129,8 +131,8 @@ export default {
   methods: {
     handleArchivoChange(event) {
       this.archivo = event.target.files[0];
-      const allowedFormats = ["image/jpeg", "image/png", "image/gif"];
-
+      const allowedFormats = ["image/jpeg"];
+//data:image/jpeg;base64
       if (!allowedFormats.includes(this.archivo.type)) {
         this.archivoValido = false;
         event.target.value = "";
@@ -143,7 +145,7 @@ export default {
       const reader = new FileReader();
       reader.onload = () => {
         this.imagenURL = reader.result;
-        this.formData.foto = reader.result.split(',')[1];
+        this.formData.foto = reader.result.split(",")[1];
       };
       reader.readAsDataURL(this.archivo);
     },
@@ -155,6 +157,17 @@ export default {
 
       const validarCampo = (valor, expresionRegular) =>
         valor !== "" && expresionRegular.test(valor);
+
+      const displayMessage = (message, icon) => {
+        Swal.fire({
+          title: message,
+          icon: icon,
+          toast: true,
+          timerProgressBar: true,
+          timer: 3000,
+          showConfirmButton: false,
+        });
+      };
 
       this.nombreValido = validarCampo(this.formData.nombre, nombrePattern);
       this.descripcionValida = validarCampo(
@@ -174,21 +187,26 @@ export default {
         this.precioValido &&
         this.cantidadValida
       ) {
-        console.log(JSON.stringify({ articulo: this.formData }))
-        //console.log(this.formData);
-        //console.log(JSON.stringify({ articulo: this.formData }));
         const config = {
           headers: {
             "Content-Type": "application/json",
           },
         };
-        const response = await axios.post(
-          "http://20.106.96.131:8080/Servicio/rest/ws/alta_articulo",
-          JSON.stringify({ articulo: this.formData }),
-          config
-        );
-        const dataRegresado = await response.data;
-        console.log(dataRegresado);
+
+        try {
+          const response = await axios.post(
+            "http://20.106.96.131:8080/Servicio/rest/ws/alta_articulo",
+            JSON.stringify({ articulo: this.formData }),
+            config
+          );
+          if (response.status === 200) {
+            displayMessage(response.data, "success");
+          } else {
+            throw new Error("Ocurrió un error al capturar el artículo");
+          }
+        } catch (error) {
+          displayMessage(error.message, "error");
+        }
 
         this.formData.nombre = "";
         this.formData.descripcion = "";
