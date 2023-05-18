@@ -1,17 +1,17 @@
 <template>
   <div class="container">
-    <SearchSection />
+    <CarritoCompra />
   </div>
 </template>
 
 <script>
-import SearchSection from "@/components/SearchSection.vue";
+import CarritoCompra from "@/components/CarritoCompra.vue";
 // @ is an alias to /src
 
 export default {
-  name: "CompraArticulosView",
+  name: "CarritoComprasView",
   components: {
-    SearchSection,
+    CarritoCompra,
   },
 };
 </script>

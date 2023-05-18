@@ -8,25 +8,6 @@
 import axios from "axios";
 export default {
   name: "HelloWorld",
-  methods: {
-    async getData() {
-      const data = {
-        busqueda: "mayonesa no rica",
-      };
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-      const response = await axios.post(
-        "http://20.106.96.131:8080/Servicio/rest/ws/consulta_articulo",
-        data,
-        config
-      );
-      const dataRegresado = await response.data;
-      console.log(dataRegresado);
-    }
-  },
 };
 </script>
 

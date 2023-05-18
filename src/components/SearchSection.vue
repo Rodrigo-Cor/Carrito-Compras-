@@ -1,4 +1,14 @@
 <template>
+  <div>
+    <router-link
+      to="/carrito"
+      class="btn btn-success"
+      tabindex="-1"
+      role="button"
+    >
+      <i class="bi bi-cart-check">Carrito de Compras</i>
+    </router-link>
+  </div>
   <div class="container">
     <div class="input-group mb-3">
       <input
@@ -6,15 +16,13 @@
         class="form-control"
         placeholder="Busqueda de artículos"
         v-model="inputValue"
-        @input="updateData"
       />
-      <button type="button" class="btn btn-primary">
+      <button type="button" class="btn btn-primary" @click="updateData">
         <i class="bi bi-search"></i>
       </button>
     </div>
-    <p>{{ dataValue }}</p>
   </div>
-  <CardArticle :input-value="dataValue" ref="childComponent"/>
+  <CardArticle :input-value="inputValue" ref="childComponent" />
 </template>
 
 <script>
@@ -28,18 +36,11 @@ export default {
   data() {
     return {
       inputValue: "",
-      dataValue: "",
     };
   },
   methods: {
     updateData() {
-      this.dataValue = this.inputValue;
-      /*
-      this.$nextTick(() => {
-                this.$refs.childComponent.prueba();
-                //this.$refs.childComponent.getData();
-            });
-      */
+      this.$refs.childComponent.getArticles();
     },
   },
 };

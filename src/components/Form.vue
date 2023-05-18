@@ -93,7 +93,7 @@
             ref="archivoInput"
           />
           <div v-if="!archivoValido" class="invalid-feedback">
-            El archivo debe ser una imagen. Formatos válidos png, jpg y gif.
+            El archivo debe ser una imagen. Formatos válidos jpg.
           </div>
         </div>
       </div>
