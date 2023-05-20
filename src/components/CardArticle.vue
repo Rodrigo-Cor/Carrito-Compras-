@@ -120,8 +120,7 @@ export default {
         });
       };
       const compra = {
-        nombre: article.nombre,
-        descripcion: article.descripcion,
+        id: article.id,
         cantidad: article.cantidad,
       };
       const config = {
