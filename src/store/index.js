@@ -20,7 +20,7 @@ export default createStore({
                 actualizarCarrito(state, carrito) {
                     state.articlesCarrito = carrito;
                 },
-                eliminar(state, article) {
+                eliminarArticuloCarrito(state, article) {
                     const index = state.articlesCarrito.findIndex(a => a.id === article.id);
                     if (index !== -1) {
                         state.articlesCarrito.splice(index, 1);
@@ -37,7 +37,10 @@ export default createStore({
                     if (index !== -1) {
                         state.articlesCarrito[index].cantidad--;
                     }
-                }
+                },
+                eliminarCarrito(state) {
+                    state.articlesCarrito = [];
+                },
             },
             actions: {
                 async obtenerCarrito({ commit }) {
@@ -78,7 +81,7 @@ export default createStore({
                         await axios.post(
                             "http://20.106.96.131:8080/Servicio/rest/ws/eliminar_articulo"
                             , idArticulo, config);
-                        commit("eliminar", article);
+                        commit("eliminarArticuloCarrito", article);
                     } catch (error) {
                     }
                 },
@@ -94,13 +97,25 @@ export default createStore({
                             cantidad: article.cantidad + 1
                         }
                         try {
-                            const response = await axios.post(
+                            await axios.post(
                                 "http://20.106.96.131:8080/Servicio/rest/ws/comprar_articulo"
                                 , nuevaCantidad, config);
-                            const carritoData = await response.data;
                             commit('aumentarCantidad', article);
                         } catch (error) {
-                            //Falta cuando truene la cantidad
+                            if (error.response && error.response.status === 404) {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'No hay suficiente stock para el artículo solicitado',
+                                    icon: 'error',
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Error al aumentar la cantidad del artículo',
+                                    icon: 'error',
+                                });
+                            }
+                            throw error; // Lanza el error para manejarlo en el componente  
                         }
                     } catch (error) {
                         console.error('Error al actualizar la cantidad en el servidor', error);
@@ -115,21 +130,33 @@ export default createStore({
                         };
                         const nuevaCantidad = {
                             id: article.id,
-                            cantidad: article.cantidad - 1
+                            cantidad: article.cantidad - 1,
+                        };
+
+                        if (nuevaCantidad.cantidad < 1) {
+                            // Evitar cantidades menores a 1
+                            return;
                         }
-                        try {
-                            const response = await axios.post(
-                                "http://20.106.96.131:8080/Servicio/rest/ws/comprar_articulo"
-                                , nuevaCantidad, config);
-                            const carritoData = await response.data;
-                            commit('disminuirCantidad', article);
-                        } catch (error) {
-                            //Falta cuando truene la cantidad
-                        }
+
+                        await axios.post(
+                            "http://20.106.96.131:8080/Servicio/rest/ws/comprar_articulo",
+                            nuevaCantidad,
+                            config
+                        );
+                        commit("disminuirCantidad", article);
                     } catch (error) {
-                        console.error('Error al actualizar la cantidad en el servidor', error);
+                        console.error("Error al actualizar la cantidad en el servidor", error);
                     }
-                }
+                },
+                async eliminarCarrito({ commit }) {
+                    try {
+                        await axios.delete("http://20.106.96.131:8080/Servicio/rest/ws/vaciar_carrito");
+                        commit('eliminarCarrito');
+
+                    } catch (error) {
+                        throw new Error('Error al eliminar el carrito de compras');
+                    }
+                },
             }
         }
     }

@@ -13,5 +13,8 @@ export default {
   components: {
     CarritoCompra,
   },
+  meta: {
+    hideNavbar: true, // Agrega esta línea para ocultar la barra de navegación
+  },
 };
 </script>

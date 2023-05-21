@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mb-4">
     <router-link
       to="/carrito"
       class="btn btn-success"

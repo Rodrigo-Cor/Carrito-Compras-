@@ -1,5 +1,17 @@
 <template>
   <div>
+    <div class="d-flex justify-content-around align-items-center my-2">
+      <button class="btn btn-danger" @click="eliminarCarritoConfirmado">
+        <i class="bi bi-trash"></i> Eliminar carrito de compras
+      </button>
+      <router-link
+        to="/compra"
+        class="btn btn-success ml-2"
+        tabindex="-1"
+        role="button"
+        >Seguir comprando
+      </router-link>
+    </div>
     <table class="table">
       <thead>
         <tr>
@@ -66,6 +78,7 @@ import {
   eliminarArticuloCarrito,
   aumentarCantidad,
   disminuirCantidad,
+  eliminarCarrito,
 } from "@/store";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -85,7 +98,8 @@ export default {
       obtenerCarrito: "obtenerCarrito",
       eliminarArticuloCarrito: "eliminarArticuloCarrito",
       aumentarCantidad: "aumentarCantidad",
-      disminuirCantidad: "disminuirCantidad", // Utiliza la acción importada correctamente
+      disminuirCantidad: "disminuirCantidad",
+      eliminarCarrito: "eliminarCarrito", // Utiliza la acción importada correctamente
     }),
 
     calcularTotal() {
@@ -108,8 +122,7 @@ export default {
     },
     eliminarArticuloConfirmado(article) {
       return new Promise((resolve, reject) => {
-        this.eliminarArticuloCarrito(article);
-        this.obtenerCarrito()
+        this.eliminarArticuloCarrito(article)
           .then(() => {
             Swal.fire({
               title: "Eliminación exitosa del artículo",
@@ -130,10 +143,52 @@ export default {
       });
     },
     aumentarCantidadCarrito(article) {
-      this.aumentarCantidad(article);
+      this.aumentarCantidad(article).catch((error) => {
+        console.error("Error al aumentar la cantidad del artículo:", error);
+        // No es necesario mostrar una alerta aquí, ya que se muestra en el index.js del store
+      });
     },
     disminuirCantidadCarrito(article) {
-      this.disminuirCantidad(article);
+      if (article.cantidad <= 1) {
+        Swal.fire({
+          title: "No se puede disminuir la cantidad",
+          text: "La cantidad mínima permitida es 1",
+          icon: "error",
+        });
+      } else {
+        this.disminuirCantidad(article).catch((error) => {
+          console.error("Error al disminuir la cantidad del artículo:", error);
+          // No es necesario mostrar una alerta aquí, ya que se muestra en el index.js del store
+        });
+      }
+    },
+    eliminarCarritoConfirmado() {
+      Swal.fire({
+        title: "¿Estás seguro de que deseas eliminar el carrito de compras?",
+        showCancelButton: true,
+        confirmButtonText: "Si",
+        cancelButtonText: "No",
+        icon: "warning",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.eliminarCarrito()
+            .then(() => {
+              Swal.fire({
+                title: "Carrito de compras eliminado exitosamente",
+                icon: "success",
+                timer: 3000,
+                showConfirmButton: false,
+              });
+            })
+            .catch((error) => {
+              Swal.fire({
+                title: "Error al eliminar el carrito de compras",
+                text: error.message,
+                icon: "error",
+              });
+            });
+        }
+      });
     },
   },
 };

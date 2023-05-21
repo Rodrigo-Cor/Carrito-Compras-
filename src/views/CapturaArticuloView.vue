@@ -1,6 +1,7 @@
 <template>
-  <p>Holaa Captura</p>
-  <Form />
+  <div class="container">
+    <Form />
+  </div>
 </template>
 
 <script>
